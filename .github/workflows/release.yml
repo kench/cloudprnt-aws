@@ -1,0 +1,55 @@
+name: Release
+
+# Publishes a GitHub release for a v* tag, with the Lambda packages and the
+# SPDX SBOMs attached.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: corretto
+          java-version: "25"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build
+        working-directory: lambda
+        run: ./gradlew --no-daemon check lambdaZip spdxSbom
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: cdk/.nvmrc
+          cache: npm
+          cache-dependency-path: cdk/package-lock.json
+
+      - name: CDK SBOM
+        working-directory: cdk
+        run: |
+          npm ci
+          npm run sbom
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp cdk/sbom.spdx.json cdk.spdx.json
+          gh release create "$GITHUB_REF_NAME" --generate-notes \
+            lambda/*/build/lambda/*.zip \
+            lambda/*/build/spdx/*.spdx.json \
+            cdk.spdx.json

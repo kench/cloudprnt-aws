@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "sources": [
+    "../../contract/model"
+  ],
+  "plugins": {
+    "java-codegen": {
+      "service": "tv.kenley.cloudprnt.protocol#CloudPrnt",
+      "namespace": "tv.kenley.cloudprnt.protocol",
+      "modes": [
+        "types"
+      ],
+      "runtimeTraits": [
+        "smithy.api#httpError",
+        "smithy.api#httpHeader",
+        "smithy.api#httpPayload",
+        "smithy.api#httpQuery"
+      ],
+      "selector": ":is([id|namespace = 'tv.kenley.cloudprnt.protocol'], [id|namespace = 'tv.kenley.cloudprnt.protocol'] ~> *)"
+    }
+  },
+  "projections": {
+    "api": {
+      "plugins": {
+        "java-codegen": {
+          "service": "tv.kenley.cloudprnt.api#PrintJobs",
+          "namespace": "tv.kenley.cloudprnt.api",
+          "modes": [
+            "types"
+          ],
+          "runtimeTraits": [
+            "smithy.api#httpError",
+            "smithy.api#httpHeader",
+            "smithy.api#httpLabel",
+            "smithy.api#httpPayload",
+            "smithy.api#httpQuery"
+          ],
+          "selector": ":is([id|namespace = 'tv.kenley.cloudprnt.api'], [id|namespace = 'tv.kenley.cloudprnt.api'] ~> *)"
+        }
+      }
+    }
+  }
+}
